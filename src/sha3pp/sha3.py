@@ -58,15 +58,6 @@ class NIST_SHA3:
         self.last_digest = None
         if data:
             self.update(data)
-            pad_byte = int(my_string[nr_bytes_filled * 2:nr_bytes_filled * 2 + 2], 16)
-            pad_byte = (pad_byte >> (8 - nbr_bits_filled))
-            pad_byte = pad_byte + (0x06 << nbr_bits_filled)
-        pad_byte = f"{pad_byte:02X}"
-        my_string = my_string[0:nr_bytes_filled * 2] + pad_byte
-        while (8 * len(my_string) // 2) % n < (n - 8):
-            my_string = my_string + '00'
-        my_string = my_string + '80'
-        return my_string
 
     def update(self, arg):
         self.last_digest = None
