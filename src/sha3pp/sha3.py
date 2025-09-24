@@ -83,7 +83,7 @@ class NIST_SHA3:
             for y in range(5):
                 for x in range(5):
                     self.S[x][y] ^= P_i[x][y]
-            self.S = NIST_SHA3.KeccakF(self.S, self.n_r, self.w)
+            self.S = NIST_SHA3.sha3_f(self.S, self.n_r, self.w)
 
     def digest(self):
         if self.last_digest:
@@ -100,7 +100,7 @@ class NIST_SHA3:
                         Z += self.S[x][y].to_bytes(8, 'little')
             if len(Z) >= self.digest_size:
                 break
-            self.S = NIST_SHA3.KeccakF(self.S, self.n_r, self.w)
+            self.S = NIST_SHA3.sha3_f(self.S, self.n_r, self.w)
         self.last_digest = Z[:self.digest_size]
         return self.last_digest
 
@@ -138,10 +138,23 @@ class NIST_SHA3:
         return A
 
     @staticmethod
-    def KeccakF(A, n_r, w):
+    def sha3_f(A, n_r, w):
         for i in range(n_r):
             A = NIST_SHA3.Round(A, NIST_SHA3.RC[i] % (1 << w), w)
         return A
+
+# Add top-level SHA3 functions
+def sha3_224(data=None):
+    return NIST_SHA3(c=448, r=1152, n=224, data=data)
+
+def sha3_256(data=None):
+    return NIST_SHA3(c=512, r=1088, n=256, data=data)
+
+def sha3_384(data=None):
+    return NIST_SHA3(c=768, r=832, n=384, data=data)
+
+def sha3_512(data=None):
+    return NIST_SHA3(c=1024, r=576, n=512, data=data)
 
     @staticmethod
     def pad10star1(M, n):
