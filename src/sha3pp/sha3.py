@@ -8,6 +8,32 @@ class NIST_SHA3_Error(Exception):
         return repr(self.value)
 
 class NIST_SHA3:
+    @staticmethod
+    def pad10star1(M, n):
+        """
+        NIST SHA3 pad10*1 padding: 0x06 ... 0x80
+        """
+        my_string_length, my_string = M
+        if n % 8 != 0:
+            raise NIST_SHA3_Error("n must be a multiple of 8")
+        if len(my_string) % 2 != 0:
+            my_string += '0'
+        if my_string_length > (len(my_string) // 2 * 8):
+            raise NIST_SHA3_Error("the string is too short to contain the number of bits announced")
+        nr_bytes_filled = my_string_length // 8
+        nbr_bits_filled = my_string_length % 8
+        if nbr_bits_filled == 0:
+            pad_byte = 0x06
+        else:
+            pad_byte = int(my_string[nr_bytes_filled * 2:nr_bytes_filled * 2 + 2], 16)
+            pad_byte = (pad_byte >> (8 - nbr_bits_filled))
+            pad_byte = pad_byte + (0x06 << nbr_bits_filled)
+        pad_byte = f"{pad_byte:02X}"
+        my_string = my_string[0:nr_bytes_filled * 2] + pad_byte
+        while (8 * len(my_string) // 2) % n < (n - 8):
+            my_string = my_string + '00'
+        my_string = my_string + '80'
+        return my_string
     RC = [
         0x0000000000000001,
         0x0000000000008082,
